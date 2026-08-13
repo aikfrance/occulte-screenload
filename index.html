@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Occulte SCP | Chargement...</title>
+    <style>
+        :root {
+            --bg-color: #0d0d0d;
+            --panel-bg: rgba(20, 20, 20, 0.92);
+            --border-color: #333333;
+            --accent-red: #b30000;
+            --text-main: #cccccc;
+            --text-bright: #ffffff;
+            --font-code: 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-code);
+            /* Fixe exactement la résolution en 1920x1080 */
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(circle, #1a1a1a 0%, #0d0d0d 100%);
+        }
+
+        /* Effet scanlines style CRT */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 99999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 1650px;
+            height: 920px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            gap: 30px;
+            border: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            padding: 40px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+        }
+
+        /* En-tête */
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent-red);
+            padding-bottom: 20px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .server-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border: 1px solid var(--accent-red);
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .logo-text h1 {
+            color: var(--text-bright);
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+        }
+
+        .logo-text span {
+            color: var(--accent-red);
+            font-size: 1rem;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .classification {
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 8px 20px;
+            font-weight: bold;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        /* Section Centrale : Activité & Infos */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding-right: 30px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .server-rules h3, .player-activity h3, .staff-section h3 {
+            color: var(--text-bright);
+            margin-bottom: 15px;
+            font-size: 1.25rem;
+            border-left: 3px solid var(--accent-red);
+            padding-left: 10px;
+        }
+
+        .server-rules p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* Activité du joueur */
+        .player-activity {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .activity-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .activity-row span:last-child {
+            color: var(--text-bright);
+        }
+
+        /* Barre de progression */
+        .progress-container {
+            margin-top: 20px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 12px;
+            background: #1a1a1a;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent-red);
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+
+        #status-text {
+            font-size: 0.9rem;
+            margin-top: 8px;
+            color: #888;
+        }
+
+        /* Section Staff */
+        .staff-section {
+            display: flex;
+            flex-direction: column;
+            padding-left: 15px;
+        }
+
+        .staff-list {
+            list-style: none;
+            overflow-y: auto;
+            max-height: 580px;
+            padding-right: 5px;
+        }
+
+        .staff-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .staff-list::-webkit-scrollbar-thumb {
+            background: var(--accent-red);
+        }
+
+        .staff-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 3px solid #555;
+            font-size: 0.95rem;
+        }
+
+        .staff-item.admin {
+            border-left-color: var(--accent-red);
+        }
+
+        .staff-role {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        /* Pied de page */
+        footer {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- EN-TÊTE -->
+        <header>
+            <div class="logo-area">
+                <img src="https://i.imgur.com/Rk8LvGY.png" alt="Logo Occulte SCP" class="server-logo">
+                <div class="logo-text">
+                    <h1>OCCULTE SCP // SERIOUS RP</h1>
+                    <span>RÉSEAU SÉCURISÉ DE LA FONDATION</span>
+                </div>
+            </div>
+            <div class="classification">
+                CLASSÉ : NIVEAU 4 REQUIS
+            </div>
+        </header>
+
+        <!-- SECTION CENTRALE (Règles + Activité Joueur) -->
+        <div class="main-content">
+            <div>
+                <div class="server-rules">
+                    <h3>DIRECTIVES DE SÉCURITÉ</h3>
+                    <p>
+                        Bienvenue sur <strong>Occulte SCP</strong>. Ce serveur applique des règles de Serious Roleplay strictes. 
+                        Le FearRP, le MetaGaming et le PowerGaming sont passibles de sanctions immédiates. 
+                        Veuillez incarner votre rôle avec rigueur et respecter le lore.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Activité du Joueur -->
+            <div class="player-activity">
+                <h3>STATUT DU PERSONNEL / ACTIVITÉ</h3>
+                <div class="activity-row">
+                    <span>Identifiant Connexion :</span>
+                    <span id="player-name">Chargement...</span>
+                </div>
+                <div class="activity-row">
+                    <span>Temps de chargement écoulé :</span>
+                    <span id="timer">00:00</span>
+                </div>
+                <div class="activity-row">
+                    <span>Fichiers en cours :</span>
+                    <span id="current-file">Initialisation...</span>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progress"></div>
+                    </div>
+                    <div id="status-text">Connexion au serveur en cours...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION STAFF EN LIGNE -->
+        <div class="staff-section">
+            <h3>ADMINISTRATION DISPONIBLE</h3>
+            <ul class="staff-list" id="staff-container">
+                <li class="staff-item admin">
+                    <span>Nom du Fondateur</span>
+                    <span class="staff-role">Fondateur</span>
+                </li>
+                <li class="staff-item admin">
+                    <span>Nom du Resp. Staff</span>
+                    <span class="staff-role">Resp. Staff</span>
+                </li>
+                <li class="staff-item">
+                    <span>Nom du Modérateur</span>
+                    <span class="staff-role">Modérateur</span>
+                </li>
+                <li class="staff-item">
+                    <span>Nom du Support</span>
+                    <span class="staff-role">Support</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- PIED DE PAGE -->
+        <footer>
+            <div>STATUS : ACCÈS AUTORISÉ SOUS SURVEILLANCE</div>
+            <div>OCCULTE SCP FRAMEWORK</div>
+        </footer>
+    </div>
+
+    <script>
+        let seconds = 0;
+        setInterval(() => {
+            seconds++;
+            let mins = Math.floor(seconds / 60);
+            let secs = seconds % 60;
+            document.getElementById('timer').innerText = 
+                (mins < 10 ? "0" + mins : mins) + ":" + (secs < 10 ? "0" + secs : secs);
+        }, 1000);
+
+        function DownloadingFile(fileName) {
+            document.getElementById('current-file').innerText = fileName;
+        }
+
+        function SetStatusChanged(status) {
+            document.getElementById('status-text').innerText = status;
+        }
+
+        function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
+            if (window.gmod && steamid) {
+                document.getElementById('player-name').innerText = steamid;
+            } else {
+                document.getElementById('player-name').innerText = "Agent Autorisé";
+            }
+        }
+    </script>
+</body>
+</html>
